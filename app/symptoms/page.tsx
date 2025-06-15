@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
+import { PostgrestError } from "@supabase/supabase-js"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -16,6 +17,7 @@ import { ArrowLeft, ArrowRight, Stethoscope, AlertTriangle, Mic, MicOff, Loader2
 import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/lib/supabase-client"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { SymptomAnalysis } from "@/lib/supabase"
 
 interface SymptomData {
   primarySymptom: string
@@ -73,6 +75,7 @@ export default function SymptomsPage() {
     "Headache",
     "Fever",
     "Cough",
+    "Cold",
     "Sore throat",
     "Nausea",
     "Fatigue",
@@ -117,7 +120,7 @@ export default function SymptomsPage() {
 
     try {
       // Save symptom analysis to Supabase
-      const { data, error } = await supabase
+      const { data, error }: { data: SymptomAnalysis | null; error: PostgrestError | null } = await supabase
         .from("symptom_analyses")
         .insert({
           user_id: user.id,
@@ -135,9 +138,11 @@ export default function SymptomsPage() {
 
       if (error) {
         console.error("Error saving symptom analysis:", error)
+        setIsLoading(false)
         return
       }
 
+      if (data) {
       // Simulate AI analysis
       await new Promise((resolve) => setTimeout(resolve, 2000))
 
@@ -145,6 +150,7 @@ export default function SymptomsPage() {
       localStorage.setItem("current_analysis_id", data.id)
 
       router.push("/analysis")
+      }
     } catch (error) {
       console.error("Error submitting symptoms:", error)
     } finally {
