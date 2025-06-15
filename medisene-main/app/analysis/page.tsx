@@ -330,41 +330,41 @@ export default function AnalysisPage() {
         setIsLoading(true)
         setAnalysisResult(null)
 
-        const prompt = `
+          const prompt = `
           Analyze the following user symptoms and medical context to provide a health analysis.
           Your response MUST be a single JSON object that strictly adheres to the following structure:
-          {
+            {
             "confidence": number (0-1, e.g., 0.85),
-            "possibleConditions": [
-              {
-                "name": string,
+              "possibleConditions": [
+                {
+                  "name": string,
                 "probability": number (0-1),
-                "description": string,
-                "severity": "low" | "medium" | "high"
-              }
-            ],
-            "recommendations": [
-              {
-                "type": "medication" | "lifestyle" | "medical",
-                "title": string,
-                "description": string,
-                "urgency": "low" | "medium" | "high"
-              }
-            ],
-            "medications": [
-              {
+                  "description": string,
+                  "severity": "low" | "medium" | "high"
+                }
+              ],
+              "recommendations": [
+                {
+                  "type": "medication" | "lifestyle" | "medical",
+                  "title": string,
+                  "description": string,
+                  "urgency": "low" | "medium" | "high"
+                }
+              ],
+              "medications": [
+                {
                 "name": string, (For common ailments like fever or cold, please suggest widely recognized OTC medications (e.g., Dolo/Paracetamol for fever, a suitable combination for cold like Cold Act, or an antihistamine like Cetirizine) if appropriate. For other conditions, provide generic or common prescription names.)
                 "type": string (OTC, prescription, etc.),
-                "dosage": string,
-                "frequency": string,
-                "duration": string,
+                  "dosage": string,
+                  "frequency": string,
+                  "duration": string,
                 "sideEffects": string[]
               }
             ],
             "warnings": string[],
             "followUp": string,
             "emergencySymptoms": string[]
-          }
+                }
 
           User Data:
           {
@@ -395,8 +395,8 @@ export default function AnalysisPage() {
           4. Warnings: Highlight any red flags or symptoms requiring immediate attention.
           5. Follow-up: Suggest when to see a doctor or if self-care is appropriate.
           6. Confidence Score: Overall confidence in this analysis.
-          Ensure your response is ONLY the JSON object with no additional text before or after.
-        `
+            Ensure your response is ONLY the JSON object with no additional text before or after.
+          `
 
         try {
           const geminiResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + GEMINI_API_KEY, {
@@ -421,7 +421,7 @@ export default function AnalysisPage() {
           const dataFromGemini = await geminiResponse.json()
           
           const textResponse = dataFromGemini.candidates?.[0]?.content?.parts?.[0]?.text
-
+            
           let currentAnalysisResult: AnalysisResult
           try {
             const jsonMatch = textResponse ? textResponse.match(/{[\s\S]*}/) : null
@@ -452,20 +452,20 @@ export default function AnalysisPage() {
         } catch (apiError: any) {
           console.error("Error processing analysis:", apiError)
           if (analysis && analysis.primary_symptom) {
-            const defaultAnalysis = generateDefaultAnalysis(analysis.primary_symptom)
+          const defaultAnalysis = generateDefaultAnalysis(analysis.primary_symptom)
             setAnalysisResult(defaultAnalysis)
-            await supabase
-              .from("symptom_analyses")
-              .update({
-                analysis_result: defaultAnalysis,
-                confidence_score: defaultAnalysis.confidence,
+          await supabase
+            .from("symptom_analyses")
+            .update({
+              analysis_result: defaultAnalysis,
+              confidence_score: defaultAnalysis.confidence,
                 api_prompt: prompt,
                 api_response: `Error: ${apiError.message}`
-              })
+            })
               .eq("id", initialAnalysisId)
           } else {
             const defaultAnalysis = generateDefaultAnalysis("Unknown Symptom")
-            setAnalysisResult(defaultAnalysis)
+          setAnalysisResult(defaultAnalysis)
              await supabase
               .from("symptom_analyses")
               .update({
@@ -519,21 +519,21 @@ export default function AnalysisPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <Card className="max-w-4xl mx-auto shadow-lg">
-        {/* Header */}
-        <header className="bg-white shadow-sm border-b">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center py-4">
-              <Button variant="ghost" onClick={() => router.push("/dashboard")} className="mr-4">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-              <div className="flex items-center space-x-3">
-                <Brain className="h-6 w-6 text-blue-600" />
-                <h1 className="text-xl font-semibold text-gray-900">Analysis Results</h1>
-              </div>
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center py-4">
+            <Button variant="ghost" onClick={() => router.push("/dashboard")} className="mr-4">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <div className="flex items-center space-x-3">
+              <Brain className="h-6 w-6 text-blue-600" />
+              <h1 className="text-xl font-semibold text-gray-900">Analysis Results</h1>
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
         {/* Confidence Score */}
         <Card className="mb-8">
